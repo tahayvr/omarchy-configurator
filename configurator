@@ -170,30 +170,16 @@ done
 
 get_disk_info() {
   local device="$1"
-  local size model mounted partitions
+  local size model
   
   # Get basic disk information
   size=$(lsblk -dno SIZE "$device" 2>/dev/null)
   model=$(lsblk -dno MODEL "$device" 2>/dev/null | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
   
-  # Check if disk has mounted partitions
-  mounted=$(lsblk -no MOUNTPOINT "$device" 2>/dev/null | grep -v '^$' | wc -l)
-  
-  # Count partitions
-  partitions=$(lsblk -no NAME "$device" 2>/dev/null | tail -n +2 | wc -l)
-  
   # Format display string
   local display="$device"
   [[ -n "$size" ]] && display="$display ($size)"
   [[ -n "$model" ]] && display="$display - $model"
-  
-  if [[ "$mounted" -gt 0 ]]; then
-    display="$display [MOUNTED]"
-  elif [[ "$partitions" -gt 0 ]]; then
-    display="$display [$partitions partitions]"
-  else
-    display="$display [Empty]"
-  fi
   
   echo "$display"
 }
